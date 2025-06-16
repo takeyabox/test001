@@ -39,6 +39,19 @@ int read4(char *buffer) {
     return 256 * one + two; // Combine the four hex digits into a decimal value
 }
 
+int readdata(int length, char *buffer[]){
+	if (length < 1){
+		return -1;
+	}
+	int coef = 1;
+	int ret = 0;
+	for (i = length; i > 0; i--){
+		ret += read1(buffer[i-1]) * coef;
+		coef *= 2;
+	}
+	return ret;
+}		
+
 int readline (char *buffer){
 
     if (*buffer != ':'){
@@ -53,6 +66,7 @@ int readline (char *buffer){
         printf("Error: Invalid length in line\n");
         return -1;
     }
+	
     buffer += 2; // Move past the length bytes
 
     int address = read4(buffer);
@@ -61,8 +75,19 @@ int readline (char *buffer){
         return -1;
     }
     buffer += 4; // Move past the address bytes
-
-    printf("Length: %d, Address: %04X\n", length, address);
+		
+	int record = read2(buffer);
+	if (record < 0) {
+		printf("Error: Record type error");
+	}
+	buffer += 2;
+		
+	int data = readdata(length, buffer);
+	if (data < 0) {
+		printf("Error: Data has no length.\n");
+	}
+	
+    printf("Length: %d, Address: %04X\n, record = %02X\n, data = %016X\n", length, address, record, data);
 
     return 0;
 }
