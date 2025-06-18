@@ -39,17 +39,14 @@ int read4(char *buffer) {
     return 256 * one + two; // Combine the four hex digits into a decimal value
 }
 
-int readdata(int length, char *buffer[]){
+int readdata(int length, char *buffer[], int *out[]){
 	if (length < 1){
 		return -1;
 	}
-	int coef = 1;
-	int ret = 0;
-	for (i = length; i > 0; i--){
-		ret += read1(buffer[i-1]) * coef;
-		coef *= 2;
+	for (i = 0; i < length; i++){
+		*out[i] = read2(buffer + i * 2);
 	}
-	return ret;
+	return 0;
 }		
 
 int readline (char *buffer){
@@ -82,12 +79,13 @@ int readline (char *buffer){
 	}
 	buffer += 2;
 		
-	int data = readdata(length, buffer);
+	int data[125];
+	readdata(length, buffer, data);
 	if (data < 0) {
 		printf("Error: Data has no length.\n");
 	}
 	
-    printf("Length: %d, Address: %04X\n, record = %02X\n, data = %016X\n", length, address, record, data);
+    printf("Length: %d, Address: %04X\n, record = %02X\n, data = %064X\n", length, address, record, data);
 
     return 0;
 }
